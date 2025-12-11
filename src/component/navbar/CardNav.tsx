@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { GoArrowUpRight } from "react-icons/go";
 import "./CardNav.css";
@@ -98,6 +98,7 @@ const CardNav: React.FC<CardNavProps> = ({
   const [showNav, setShowNav] = useState(true);
 
   const navRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const cardsRef = useRef<HTMLDivElement[]>([]);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
@@ -236,6 +237,39 @@ const CardNav: React.FC<CardNavProps> = ({
   };
 
   /* -----------------------------
+     AUTO-CLOSE WHEN MOUSE LEAVES NAV
+  ------------------------------ */
+  const handleMouseLeave = () => {
+    if (isExpanded && tlRef.current) {
+      setIsHamburgerOpen(false);
+      tlRef.current.eventCallback("onReverseComplete", () =>
+        setIsExpanded(false)
+      );
+      tlRef.current.reverse();
+    }
+  };
+
+  /* -----------------------------
+     AUTO-CLOSE WHEN CLICK OUTSIDE
+  ------------------------------ */
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        isExpanded &&
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsHamburgerOpen(false);
+        tlRef.current?.reverse();
+        setIsExpanded(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isExpanded]);
+
+  /* -----------------------------
      SMART NAVBAR HIDE/SHOW
   ------------------------------ */
   useLayoutEffect(() => {
@@ -264,6 +298,8 @@ const CardNav: React.FC<CardNavProps> = ({
   ------------------------------ */
   return (
     <div
+      ref={containerRef}
+      onMouseLeave={handleMouseLeave}
       className={`
         card-nav-container fixed left-0 w-full z-50 
         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]

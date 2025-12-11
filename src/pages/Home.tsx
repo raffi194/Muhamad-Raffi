@@ -8,9 +8,9 @@ const Home = () => {
   return (
     <div className="h-screen bg-neutral-900 flex">
       {/* LEFT SECTION */}
-      <div className="w-3/4 flex flex-col justify-center text-white p-10">
+      <div className="w-3/4 flex flex-col justify-center text-white mt-20">
         <ScrambledText
-          className="scrambled-text-demo"
+          className="scrambled-text-demo text-2xl lg:text-4x"
           radius={100}
           duration={1.2}
           speed={0.5}
@@ -27,7 +27,7 @@ const Home = () => {
       </div>
 
       {/* RIGHT SECTION */}
-      <div className="w-1/4 p-5 flex justify-center items-center overflow-visible">
+      <div className="w-1/4 flex justify-center items-center overflow-visible">
         <div className="flex justify-center items-center overflow-visible">
           <Lanyard position={[0, 0, 12]} gravity={[0, -40, 0]} />
         </div>
