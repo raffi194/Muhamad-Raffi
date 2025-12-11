@@ -3,6 +3,9 @@ import { gsap } from "gsap";
 import { GoArrowUpRight } from "react-icons/go";
 import "./CardNav.css";
 
+/* -----------------------------
+   NAV ITEM TYPES
+------------------------------ */
 type CardNavLink = {
   label: string;
   href: string;
@@ -19,7 +22,6 @@ export type CardNavItem = {
 export interface CardNavProps {
   logo: string;
   logoAlt?: string;
-  items: CardNavItem[];
   className?: string;
   ease?: string;
   baseColor?: string;
@@ -28,10 +30,62 @@ export interface CardNavProps {
   buttonTextColor?: string;
 }
 
+/* -----------------------------
+   INSERTED ITEMS (YOUR DATA)
+------------------------------ */
+const items: CardNavItem[] = [
+  {
+    label: "About",
+    bgColor: "#0D0716",
+    textColor: "#fff",
+    links: [
+      { label: "Company", ariaLabel: "About Company", href: "/company" },
+      { label: "Careers", ariaLabel: "About Careers", href: "/careers" },
+    ],
+  },
+  {
+    label: "Projects",
+    bgColor: "#170D27",
+    textColor: "#fff",
+    links: [
+      {
+        label: "Featured",
+        ariaLabel: "Featured Projects",
+        href: "/projects/featured",
+      },
+      {
+        label: "Case Studies",
+        ariaLabel: "Project Case Studies",
+        href: "/projects/cases",
+      },
+    ],
+  },
+  {
+    label: "Contact",
+    bgColor: "#271E37",
+    textColor: "#fff",
+    links: [
+      {
+        label: "Email",
+        ariaLabel: "Email us",
+        href: "mailto:example@example.com",
+      },
+      { label: "Twitter", ariaLabel: "Twitter", href: "https://twitter.com" },
+      {
+        label: "LinkedIn",
+        ariaLabel: "LinkedIn",
+        href: "https://linkedin.com",
+      },
+    ],
+  },
+];
+
+/* -----------------------------
+   MAIN NAVBAR COMPONENT
+------------------------------ */
 const CardNav: React.FC<CardNavProps> = ({
   logo,
   logoAlt = "Logo",
-  items,
   className = "",
   ease = "power3.out",
   baseColor = "#ffffff",
@@ -41,22 +95,24 @@ const CardNav: React.FC<CardNavProps> = ({
 }) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showNav, setShowNav] = useState(true);
 
   const navRef = useRef<HTMLDivElement | null>(null);
   const cardsRef = useRef<HTMLDivElement[]>([]);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
-  const [showNav, setShowNav] = useState(true);
+
   const lastScrollY = useRef(0);
   const scrollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // =========================
-  // CALCULATE HEIGHT (GSAP)
-  // =========================
+  /* -----------------------------
+     CALCULATE HEIGHT
+  ------------------------------ */
   const calculateHeight = () => {
     const navEl = navRef.current;
     if (!navEl) return 260;
 
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
     if (isMobile) {
       const contentEl = navEl.querySelector(".card-nav-content") as HTMLElement;
       if (contentEl) {
@@ -74,6 +130,7 @@ const CardNav: React.FC<CardNavProps> = ({
 
         const topBar = 60;
         const padding = 16;
+
         const height = topBar + contentEl.scrollHeight + padding;
 
         contentEl.style.visibility = wasVisibility;
@@ -88,9 +145,9 @@ const CardNav: React.FC<CardNavProps> = ({
     return 260;
   };
 
-  // =========================
-  // CREATE TIMELINE
-  // =========================
+  /* -----------------------------
+     CREATE TIMELINE
+  ------------------------------ */
   const createTimeline = () => {
     const navEl = navRef.current;
     if (!navEl) return null;
@@ -115,6 +172,9 @@ const CardNav: React.FC<CardNavProps> = ({
     return tl;
   };
 
+  /* -----------------------------
+     INITIALIZE TIMELINE
+  ------------------------------ */
   useLayoutEffect(() => {
     const tl = createTimeline();
     tlRef.current = tl;
@@ -123,11 +183,11 @@ const CardNav: React.FC<CardNavProps> = ({
       tl?.kill();
       tlRef.current = null;
     };
-  }, [items, ease]);
+  }, [ease]);
 
-  // =========================
-  // RESIZE LISTENER
-  // =========================
+  /* -----------------------------
+     RESIZE RE-CALC
+  ------------------------------ */
   useLayoutEffect(() => {
     const handleResize = () => {
       if (!tlRef.current) return;
@@ -153,9 +213,9 @@ const CardNav: React.FC<CardNavProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, [isExpanded]);
 
-  // =========================
-  // TOGGLE MENU
-  // =========================
+  /* -----------------------------
+     TOGGLE MENU
+  ------------------------------ */
   const toggleMenu = () => {
     const tl = tlRef.current;
     if (!tl) return;
@@ -175,56 +235,21 @@ const CardNav: React.FC<CardNavProps> = ({
     if (el) cardsRef.current[i] = el;
   };
 
-  // =========================
-  // AUTO CLOSE WHEN CURSOR LEAVES NAV
-  // =========================
-  const handleMouseLeave = () => {
-    if (isExpanded && tlRef.current) {
-      setIsHamburgerOpen(false);
-      tlRef.current.eventCallback("onReverseComplete", () =>
-        setIsExpanded(false)
-      );
-      tlRef.current.reverse();
-    }
-  };
-
-  // =========================
-  // SHADOW ON SCROLL
-  // =========================
-  useLayoutEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        nav.style.boxShadow = "0 10px 40px rgba(0,0,0,0.35)";
-      } else {
-        nav.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // =========================
-  // PREMIUM NAVBAR SMART BEHAVIOR
-  // =========================
+  /* -----------------------------
+     SMART NAVBAR HIDE/SHOW
+  ------------------------------ */
   useLayoutEffect(() => {
     const handleSmartNav = () => {
       const currentScroll = window.scrollY;
 
-      // SCROLL DOWN → hide navbar
       if (currentScroll > lastScrollY.current && currentScroll > 80) {
         setShowNav(false);
-      }
-      // SCROLL UP → show navbar (with delay)
-      else if (currentScroll < lastScrollY.current - 10) {
+      } else if (currentScroll < lastScrollY.current - 10) {
         if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
 
         scrollTimeout.current = setTimeout(() => {
           setShowNav(true);
-        }, 250); // Delay 250ms
+        }, 250);
       }
 
       lastScrollY.current = currentScroll;
@@ -234,40 +259,36 @@ const CardNav: React.FC<CardNavProps> = ({
     return () => window.removeEventListener("scroll", handleSmartNav);
   }, []);
 
-  // =========================
-  // RENDER
-  // =========================
+  /* -----------------------------
+     RENDER
+  ------------------------------ */
   return (
     <div
       className={`
-    card-nav-container fixed left-0 w-full z-50 
-    transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-    ${
-      showNav
-        ? "translate-y-0 opacity-100 scale-100"
-        : "-translate-y-[120%] opacity-0 scale-95"
-    }
-    ${className}
-  `}
-      onMouseLeave={handleMouseLeave}
+        card-nav-container fixed left-0 w-full z-50 
+        transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+        ${
+          showNav
+            ? "translate-y-0 opacity-100 scale-100"
+            : "-translate-y-[120%] opacity-0 scale-95"
+        }
+        ${className}
+      `}
     >
       <nav
         ref={navRef}
         className={`card-nav ${isExpanded ? "open" : ""}`}
         style={{
-          backgroundColor: baseColor + "CC", // translucent base color
+          backgroundColor: baseColor + "CC",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
       >
-        {/* NAV TOP BAR */}
+        {/* TOP BAR */}
         <div className="card-nav-top">
           <div
             className={`hamburger-menu ${isHamburgerOpen ? "open" : ""}`}
             onClick={toggleMenu}
-            role="button"
-            aria-label={isExpanded ? "Close menu" : "Open menu"}
-            tabIndex={0}
             style={{ color: menuColor || "#000" }}
           >
             <div className="hamburger-line" />
@@ -279,7 +300,6 @@ const CardNav: React.FC<CardNavProps> = ({
           </div>
 
           <button
-            type="button"
             className="card-nav-cta-button"
             style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
           >
@@ -287,23 +307,27 @@ const CardNav: React.FC<CardNavProps> = ({
           </button>
         </div>
 
-        {/* NAV CONTENT */}
+        {/* EXPAND CONTENT */}
         <div className="card-nav-content" aria-hidden={!isExpanded}>
-          {(items || []).slice(0, 3).map((item, idx) => (
+          {items.map((item, idx) => (
             <div
-              key={`${item.label}-${idx}`}
+              key={item.label}
               className="nav-card"
               ref={setCardRef(idx)}
-              style={{ backgroundColor: item.bgColor, color: item.textColor }}
+              style={{
+                backgroundColor: item.bgColor,
+                color: item.textColor,
+              }}
             >
               <div className="nav-card-label">{item.label}</div>
+
               <div className="nav-card-links">
-                {item.links?.map((link, i) => (
+                {item.links.map((link, i) => (
                   <a
-                    key={`${link.label}-${i}`}
-                    className="nav-card-link"
+                    key={link.href}
                     href={link.href}
                     aria-label={link.ariaLabel}
+                    className="nav-card-link"
                   >
                     <GoArrowUpRight className="nav-card-link-icon" />
                     {link.label}
