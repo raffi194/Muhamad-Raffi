@@ -6,7 +6,6 @@ import Lanyard from "../component/lanyard/Lanyard";
 import CVButton from "../component/button/HomeButton/Button";
 import StaggeredMenu from "../component/navbar/StaggeredMenu";
 
-// Navigation menu data
 const menuItems = [
   { label: "Home", ariaLabel: "Go to home page", link: "/" },
   { label: "About", ariaLabel: "Learn about us", link: "/about" },
@@ -39,34 +38,35 @@ const Home = () => {
         accentColor="#ff6b6b"
       />
 
-      <div className="absolute inset-0 z-0 w-full h-full">
-        <Lanyard />
+      <div className="absolute inset-0 z-20 pointer-events-none">
+
+        <div className="w-full h-full pointer-events-auto">
+             <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
+        </div>
       </div>
 
-      <div className="relative z-10 w-full flex flex-col justify-center text-white px-10 gap-8 pointer-events-none">
+      <div className="relative w-full flex flex-col justify-center text-white px-10 gap-8 pointer-events-none">
 
-        {/* HEADER ROW (Name + Button) */}
-        <div className="flex justify-between items-center border-b border-neutral-700 pb-6 pointer-events-auto">
+        <div className="relative flex justify-between items-center border-b border-neutral-700 pb-6 pointer-events-auto">
           <div>
             <h1 className="text-6xl font-bold tracking-tighter mb-2">
               Muhamad Raffi
             </h1>
             <p className="text-xl font-light text-neutral-400">As a Student</p>
           </div>
-          <CVButton />
+          
         </div>
 
-        {/* STATS ROW */}
-        <div className="flex gap-12 mt-4 pointer-events-auto">
+        <div className="relative z-30 flex gap-12 mt-4 pointer-events-auto">
           <StatCard value="3.5+" label="Aggregate GPA" />
           <StatCard value="1+" label="Project" />
           <StatCard value="01+" label="Years Experience" />
+          <CVButton />
         </div>
 
-        {/* BIO TEXT */}
-        <div className="w-full mt-4 pointer-events-auto">
+        <div className="relative z-20 w-fit mt-4 pointer-events-auto">
           <ScrambledText
-            className="scrambled-text-demo text-lg lg:text-xl leading-relaxed text-neutral-300"
+            className="scrambled-text-demo text-xl leading-relaxed text-neutral-300"
             radius={100}
             duration={1.2}
             speed={0.5}
@@ -74,7 +74,7 @@ const Home = () => {
           >
             I am a second-year Information Systems student at Brawijaya
             University, highly enthusiastic about technology and an avid reader.
-            I have a self-motivated and optimistic attitude, and I am capable of
+            I have a self- motivated and optimistic attitude, and I am capable of
             thriving in challenging and dynamic environments. Currently, I am
             looking to improve my skills and contribute to a professional
             organization. I am very eager to learn new things that interest me
@@ -99,4 +99,4 @@ function StatCard({ value, label }: { value: string; label: string }) {
       </span>
     </div>
   );
-}
+} 
